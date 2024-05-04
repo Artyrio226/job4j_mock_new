@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
  * @author Dmitry Stepanov, user Dmitry
  * @since 13.10.2023
  */
+@SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class WisherServiceWebClientTest {
 
