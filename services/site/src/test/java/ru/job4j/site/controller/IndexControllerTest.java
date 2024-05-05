@@ -101,8 +101,7 @@ class IndexControllerTest {
         when(topicsService.getByCategory(cat2.getId())).thenReturn(List.of(topicDTO2));
         when(categoriesService.getMostPopular()).thenReturn(listCat);
         when(interviewsService.getByType(1)).thenReturn(listInterviews);
-        when(profilesService.getProfileById(firstProfile.getId())).thenReturn(Optional.of(firstProfile));
-        when(profilesService.getProfileById(secondProfile.getId())).thenReturn(Optional.of(secondProfile));
+        when(profilesService.getProfileMap(listInterviews)).thenReturn(mapOptionalProfiles);
 
         var listBread = List.of(new Breadcrumb("Главная", "/"));
         var model = new ConcurrentModel();
