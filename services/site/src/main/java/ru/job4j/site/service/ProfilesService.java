@@ -5,10 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.job4j.site.dto.InterviewDTO;
 import ru.job4j.site.dto.ProfileDTO;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * CheckDev пробное собеседование
@@ -49,5 +52,20 @@ public class ProfilesService {
                 .doGetReqParamAll(URL_PROFILES)
                 .block();
         return responseEntity.getBody();
+    }
+
+    /**
+     * Метод принимает список InterviewDTO и возвращает Map с ключом id из InterviewDTO
+     * и значением Optional<ProfileDTO>.
+     *
+     * @param list List<InterviewDTO>
+     * @return Map<Integer, Optional<ProfileDTO>>
+     */
+    public Map<Integer, Optional<ProfileDTO>> getProfileMap(List<InterviewDTO> list) {
+        return list.stream()
+                .collect(Collectors.toMap(
+                        InterviewDTO::getId,
+                        dto -> getProfileById(dto.getSubmitterId())
+                ));
     }
 }
