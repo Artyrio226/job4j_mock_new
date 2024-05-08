@@ -65,4 +65,8 @@ public class TopicService {
         }
         return result;
     }
+
+    public List<Topic> getAllWithCategory() {
+        return new ArrayList<>(topicRepository.findAllJoinFetchCategory());
+    }
 }

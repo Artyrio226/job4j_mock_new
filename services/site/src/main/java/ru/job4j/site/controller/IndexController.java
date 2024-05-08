@@ -20,6 +20,7 @@ import static ru.job4j.site.controller.RequestResponseTools.getToken;
 @AllArgsConstructor
 @Slf4j
 public class IndexController {
+    private static final int INTERVIEW_MODE = 1;
     private final CategoriesService categoriesService;
     private final InterviewsService interviewsService;
     private final AuthService authService;
@@ -44,7 +45,7 @@ public class IndexController {
         } catch (Exception e) {
             log.error("Remote application not responding. Error: {}. {}, ", e.getCause(), e.getMessage());
         }
-        List<InterviewDTO> interviewDTOList = interviewsService.getByType(1);
+        List<InterviewDTO> interviewDTOList = interviewsService.getByType(INTERVIEW_MODE);
         model.addAttribute("new_interviews", interviewDTOList);
         model.addAttribute("number_new_interviews", topicsService.getTopicMap(categories, interviewDTOList));
         return "index";
