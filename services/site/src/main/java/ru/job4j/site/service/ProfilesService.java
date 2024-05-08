@@ -56,16 +56,45 @@ public class ProfilesService {
 
     /**
      * Метод принимает список InterviewDTO и возвращает Map с ключом id из InterviewDTO
-     * и значением Optional<ProfileDTO>.
+     * и значением ProfileDTO.
      *
      * @param list List<InterviewDTO>
-     * @return Map<Integer, Optional<ProfileDTO>>
+     * @return Map<Integer, ProfileDTO>
      */
-    public Map<Integer, Optional<ProfileDTO>> getProfileMap(List<InterviewDTO> list) {
+    public Map<Integer, ProfileDTO> getProfileMap(List<InterviewDTO> list) {
+        List<Integer> profileIds = list.stream().map(InterviewDTO::getSubmitterId).toList();
+        Map<Integer, ProfileDTO> map = getByProfilesIds(profileIds).stream()
+                .collect(Collectors.toMap(ProfileDTO::getId, dto -> dto));
         return list.stream()
                 .collect(Collectors.toMap(
                         InterviewDTO::getId,
-                        dto -> getProfileById(dto.getSubmitterId())
+                        dto -> map.get(dto.getSubmitterId())
                 ));
+    }
+
+    /**
+     * Метод принимает список ID из ProfileDTO и возвращает список ProfileDTO.
+     *
+     * @param profileIds List<Integer>
+     * @return List<ProfileDTO>
+     */
+    public List<ProfileDTO> getByProfilesIds(List<Integer> profileIds) {
+        var tids = parseIdsListToString(profileIds);
+        var uri = URL_PROFILES + "listIds/" + tids;
+        var responseEntity = webClientAuthCall
+                .doGetReqParamAll(uri)
+                .block();
+        return responseEntity.getBody();
+    }
+
+    private String parseIdsListToString(List<Integer> list) {
+        var builder = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            builder.append(list.get(i));
+            if (i < list.size() - 1) {
+                builder.append(',');
+            }
+        }
+        return builder.toString();
     }
 }

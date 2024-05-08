@@ -91,9 +91,9 @@ class IndexControllerTest {
         var secondProfile = new ProfileDTO(2, "Name2", "junior", 2,
                 new GregorianCalendar(2024, Calendar.FEBRUARY, 22),
                 new GregorianCalendar(2023, Calendar.OCTOBER, 12));
-        Map<Integer, Optional<ProfileDTO>> mapOptionalProfiles = Map.of(
-                1, Optional.of(firstProfile),
-                2, Optional.of(secondProfile)
+        Map<Integer, ProfileDTO> profileDTOMap = Map.of(
+                1, firstProfile,
+                2, secondProfile
         );
         var listInterviews = List.of(firstInterview, secondInterview);
 
@@ -101,7 +101,7 @@ class IndexControllerTest {
         when(topicsService.getByCategory(cat2.getId())).thenReturn(List.of(topicDTO2));
         when(categoriesService.getMostPopular()).thenReturn(listCat);
         when(interviewsService.getByType(1)).thenReturn(listInterviews);
-        when(profilesService.getProfileMap(listInterviews)).thenReturn(mapOptionalProfiles);
+        when(profilesService.getProfileMap(listInterviews)).thenReturn(profileDTOMap);
 
         var listBread = List.of(new Breadcrumb("Главная", "/"));
         var model = new ConcurrentModel();
@@ -117,6 +117,6 @@ class IndexControllerTest {
         assertThat(actualBreadCrumbs).usingRecursiveComparison().isEqualTo(listBread);
         assertThat(actualUserInfo).isNull();
         assertThat(actualInterviews).usingRecursiveComparison().isEqualTo(listInterviews);
-        assertThat(actualProfiles).usingRecursiveComparison().isEqualTo(mapOptionalProfiles);
+        assertThat(actualProfiles).usingRecursiveComparison().isEqualTo(profileDTOMap);
     }
 }
