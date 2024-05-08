@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.checkdev.auth.dto.ProfileDTO;
 import ru.checkdev.auth.service.ProfileService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,6 +52,25 @@ public class ProfileController {
     @GetMapping("/")
     public ResponseEntity<List<ProfileDTO>> getAllProfilesOrderByCreateDesc() {
         var profiles = profileService.findProfilesOrderByCreatedDesc();
+        return new ResponseEntity<>(
+                profiles,
+                profiles.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
+    }
+
+    /**
+     * Отправляет список PersonDTO по списку ID.
+     *
+     * @param tids List<Integer>
+     * @return ResponseEntity
+     */
+    @GetMapping("/listIds/{tids}")
+    public ResponseEntity<List<ProfileDTO>> getByProfilesIds(@PathVariable String tids) {
+        var profileIdsArr = tids.split(",");
+        List<Integer> profileIds = new ArrayList<>();
+        for (String id : profileIdsArr) {
+            profileIds.add(Integer.valueOf(id));
+        }
+        var profiles = profileService.findProfileDTOsByIdIn(profileIds);
         return new ResponseEntity<>(
                 profiles,
                 profiles.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
