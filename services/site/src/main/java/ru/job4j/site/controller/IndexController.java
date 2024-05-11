@@ -26,6 +26,7 @@ public class IndexController {
     private final AuthService authService;
     private final NotificationService notifications;
     private final TopicsService topicsService;
+    private final ProfilesService profilesService;
 
     @GetMapping({"/", "index"})
     public String getIndexPage(Model model, HttpServletRequest req) throws JsonProcessingException {
@@ -48,6 +49,7 @@ public class IndexController {
         List<InterviewDTO> interviewDTOList = interviewsService.getByType(INTERVIEW_MODE);
         model.addAttribute("new_interviews", interviewDTOList);
         model.addAttribute("number_new_interviews", topicsService.getTopicMap(categories, interviewDTOList));
+        model.addAttribute("profiles", profilesService.getProfileMap(interviewDTOList));
         return "index";
     }
 }

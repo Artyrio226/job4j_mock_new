@@ -13,11 +13,11 @@ import ru.job4j.site.SiteSrv;
 import ru.job4j.site.domain.Breadcrumb;
 import ru.job4j.site.dto.CategoryDTO;
 import ru.job4j.site.dto.InterviewDTO;
+import ru.job4j.site.dto.ProfileDTO;
 import ru.job4j.site.dto.TopicDTO;
 import ru.job4j.site.service.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
@@ -25,7 +25,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-
 
 /**
  * CheckDev пробное собеседование
@@ -49,13 +48,15 @@ class IndexControllerTest {
     private AuthService authService;
     @MockBean
     private NotificationService notificationService;
+    @MockBean
+    private ProfilesService profilesService;
 
     private IndexController indexController;
 
     @BeforeEach
     void initTest() {
         this.indexController = new IndexController(
-                categoriesService, interviewsService, authService, notificationService, topicsService
+                categoriesService, interviewsService, authService, notificationService, topicsService, profilesService
         );
     }
 
@@ -84,6 +85,16 @@ class IndexControllerTest {
         var secondInterview = new InterviewDTO(2, 1, 1, 2,
                 "interview2", "description2", "contact2",
                 "30.02.2024", "09.10.2023", 1);
+        var firstProfile = new ProfileDTO(1, "Name1", "middle", 1,
+                new GregorianCalendar(2024, Calendar.MARCH, 30),
+                new GregorianCalendar(2023, Calendar.NOVEMBER, 9));
+        var secondProfile = new ProfileDTO(2, "Name2", "junior", 2,
+                new GregorianCalendar(2024, Calendar.FEBRUARY, 22),
+                new GregorianCalendar(2023, Calendar.OCTOBER, 12));
+        Map<Integer, ProfileDTO> profileDTOMap = Map.of(
+                1, firstProfile,
+                2, secondProfile
+        );
         var listInterviews = List.of(firstInterview, secondInterview);
         var mapNumberInterviews = Map.of(1, 1, 2, 1);
 
@@ -92,6 +103,7 @@ class IndexControllerTest {
         when(categoriesService.getMostPopular()).thenReturn(listCat);
         when(interviewsService.getByType(1)).thenReturn(listInterviews);
         when(topicsService.getTopicMap(listCat, listInterviews)).thenReturn(mapNumberInterviews);
+        when(profilesService.getProfileMap(listInterviews)).thenReturn(profileDTOMap);
 
         var listBread = List.of(new Breadcrumb("Главная", "/"));
         var model = new ConcurrentModel();
@@ -101,6 +113,7 @@ class IndexControllerTest {
         var actualUserInfo = model.getAttribute("userInfo");
         var actualInterviews = model.getAttribute("new_interviews");
         var actualNumberInterviews = model.getAttribute("number_new_interviews");
+        var actualProfiles = model.getAttribute("profiles");
 
         assertThat(view).isEqualTo("index");
         assertThat(actualCategories).usingRecursiveComparison().isEqualTo(listCat);
@@ -108,5 +121,6 @@ class IndexControllerTest {
         assertThat(actualUserInfo).isNull();
         assertThat(actualInterviews).usingRecursiveComparison().isEqualTo(listInterviews);
         assertThat(actualNumberInterviews).usingRecursiveComparison().isEqualTo(mapNumberInterviews);
+        assertThat(actualProfiles).usingRecursiveComparison().isEqualTo(profileDTOMap);
     }
 }

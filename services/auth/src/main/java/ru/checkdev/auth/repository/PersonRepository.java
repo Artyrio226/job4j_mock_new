@@ -72,4 +72,14 @@ public interface PersonRepository extends CrudRepository<Profile, Integer> {
      */
     @Query("SELECT new ru.checkdev.auth.dto.ProfileDTO(p.id, p.username, p.experience, p.photo.id, p.updated, p.created) FROM profile p ORDER BY p.created DESC")
     List<ProfileDTO> findProfileOrderByCreatedDesc();
+
+    /**
+     * Метод нативным запросом формирует список пользователей по списку ID,
+     * возвращая список DTO моделей ProfileDTO.
+     *
+     * @param ids List<Integer>
+     * @return List ProfileDTO
+     */
+    @Query("SELECT new ru.checkdev.auth.dto.ProfileDTO(p.id, p.username, p.experience, p.photo.id, p.updated, p.created) FROM profile p WHERE p.id in :ids")
+    List<ProfileDTO> findProfileDTOsByIdIn(List<Integer> ids);
 }
