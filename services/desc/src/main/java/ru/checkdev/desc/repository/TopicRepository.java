@@ -23,4 +23,7 @@ public interface TopicRepository extends CrudRepository<Topic, Integer> {
 
     @Query("SELECT t.name FROM cd_topic t WHERE t.id = :id")
     Optional<String> getNameById(@Param("id") int id);
+
+    @Query("SELECT t FROM cd_topic t join fetch t.category")
+    List<Topic> findAllJoinFetchCategory();
 }

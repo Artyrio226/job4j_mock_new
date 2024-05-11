@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import ru.job4j.site.dto.CategoryDTO;
 import ru.job4j.site.dto.InterviewDTO;
 import ru.job4j.site.service.*;
 
@@ -24,6 +25,7 @@ public class IndexController {
     private final InterviewsService interviewsService;
     private final AuthService authService;
     private final NotificationService notifications;
+    private final TopicsService topicsService;
     private final ProfilesService profilesService;
 
     @GetMapping({"/", "index"})
@@ -31,8 +33,9 @@ public class IndexController {
         RequestResponseTools.addAttrBreadcrumbs(model,
                 "Главная", "/"
         );
+        List<CategoryDTO> categories = categoriesService.getMostPopular();
         try {
-            model.addAttribute("categories", categoriesService.getMostPopular());
+            model.addAttribute("categories", categories);
             var token = getToken(req);
             if (token != null) {
                 var userInfo = authService.userInfo(token);
@@ -45,6 +48,7 @@ public class IndexController {
         }
         List<InterviewDTO> interviewDTOList = interviewsService.getByType(INTERVIEW_MODE);
         model.addAttribute("new_interviews", interviewDTOList);
+        model.addAttribute("number_new_interviews", topicsService.getTopicMap(categories, interviewDTOList));
         model.addAttribute("profiles", profilesService.getProfileMap(interviewDTOList));
         return "index";
     }

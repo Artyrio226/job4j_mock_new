@@ -56,7 +56,7 @@ class IndexControllerTest {
     @BeforeEach
     void initTest() {
         this.indexController = new IndexController(
-                categoriesService, interviewsService, authService, notificationService, profilesService
+                categoriesService, interviewsService, authService, notificationService, topicsService, profilesService
         );
     }
 
@@ -96,11 +96,13 @@ class IndexControllerTest {
                 2, secondProfile
         );
         var listInterviews = List.of(firstInterview, secondInterview);
+        var mapNumberInterviews = Map.of(1, 1, 2, 1);
 
         when(topicsService.getByCategory(cat1.getId())).thenReturn(List.of(topicDTO1));
         when(topicsService.getByCategory(cat2.getId())).thenReturn(List.of(topicDTO2));
         when(categoriesService.getMostPopular()).thenReturn(listCat);
         when(interviewsService.getByType(1)).thenReturn(listInterviews);
+        when(topicsService.getTopicMap(listCat, listInterviews)).thenReturn(mapNumberInterviews);
         when(profilesService.getProfileMap(listInterviews)).thenReturn(profileDTOMap);
 
         var listBread = List.of(new Breadcrumb("Главная", "/"));
@@ -110,6 +112,7 @@ class IndexControllerTest {
         var actualBreadCrumbs = model.getAttribute("breadcrumbs");
         var actualUserInfo = model.getAttribute("userInfo");
         var actualInterviews = model.getAttribute("new_interviews");
+        var actualNumberInterviews = model.getAttribute("number_new_interviews");
         var actualProfiles = model.getAttribute("profiles");
 
         assertThat(view).isEqualTo("index");
@@ -117,6 +120,7 @@ class IndexControllerTest {
         assertThat(actualBreadCrumbs).usingRecursiveComparison().isEqualTo(listBread);
         assertThat(actualUserInfo).isNull();
         assertThat(actualInterviews).usingRecursiveComparison().isEqualTo(listInterviews);
+        assertThat(actualNumberInterviews).usingRecursiveComparison().isEqualTo(mapNumberInterviews);
         assertThat(actualProfiles).usingRecursiveComparison().isEqualTo(profileDTOMap);
     }
 }
