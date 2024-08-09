@@ -31,7 +31,7 @@ public class PersonRepositoryTest {
 
     @Before
     public void clearTable() {
-        entityManager.createQuery("delete from person").executeUpdate();
+        entityManager.createQuery("delete from profile").executeUpdate();
     }
 
     @Test
