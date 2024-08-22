@@ -84,6 +84,7 @@ public class WebClientAuthCall {
                 .doOnError(err -> log.error("API not found: {}", err.getMessage()));
     }
 
+
     /**
      * Метод обрабатывает запросы Get.
      *

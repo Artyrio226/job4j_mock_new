@@ -26,6 +26,7 @@ public class PersonService {
     private static final String URL_PERSON_UPDATE = "/person/updateMultipart";
     private final WebClientAuthCall webClientAuthCall;
 
+
     /**
      * Метод получает модель PersonDTO по токену.
      *

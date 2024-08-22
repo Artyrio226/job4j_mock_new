@@ -133,7 +133,7 @@ public class PersonService {
         if (find == null) {
             result = Optional.empty();
         } else {
-            String password = RandomStringUtils.randomAlphabetic(8);
+            String password = profile.getPassword();
             find.setPassword(this.encoding.encode(password));
             this.persons.save(find);
             Map<String, Object> keys = new HashMap<>();
@@ -309,5 +309,10 @@ public class PersonService {
         }
         emptyNames.addAll(Arrays.asList(extra));
         return emptyNames;
+    }
+
+    public boolean checkProfilePassword(String email, String password) {
+        Profile profile = persons.findByEmail(email);
+        return encoding.matches(password, profile.getPassword());
     }
 }

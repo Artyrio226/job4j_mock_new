@@ -51,6 +51,23 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/checkPassword")
+    public Object checkUser(@RequestBody Profile profile) {
+        if (persons.checkProfilePassword(profile.getEmail(), profile.getPassword())) {
+            return new Object() {
+                public String getOk() {
+                    return "ok";
+                }
+            };
+        } else {
+            return new Object() {
+                public String getError() {
+                    return "Пароль введен не верно.";
+                }
+            };
+        }
+    }
+
     @PostMapping("/registration")
     public Object registration(@RequestBody Profile profile) {
         Optional<Profile> result = this.persons.reg(profile);

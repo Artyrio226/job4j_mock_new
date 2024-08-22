@@ -48,6 +48,15 @@ public class SubscribeCategoryServiceTest {
     }
 
     @Test
+    public void testSaveSubscribeCategoryUniqueUserIdAndCategoryId() {
+        SubscribeCategory subscribeCategory = new SubscribeCategory(0, 1, 1);
+        SubscribeCategory savedCategory = this.service.save(subscribeCategory);
+        assertNotNull(savedCategory);
+        assertEquals(subscribeCategory.getUserId(), savedCategory.getUserId());
+        assertEquals(subscribeCategory.getCategoryId(), savedCategory.getCategoryId());
+    }
+
+    @Test
     public void whenDeleteSubCatItIsNotExist() {
         SubscribeCategory subscribeCategory = this.service.save(new SubscribeCategory(2, 3, 3));
         subscribeCategory = this.service.delete(subscribeCategory);
