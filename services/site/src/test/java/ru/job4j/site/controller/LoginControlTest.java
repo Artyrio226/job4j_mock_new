@@ -46,7 +46,6 @@ class LoginControlTest {
     @Test
     void whenGetLoginPageThenReturnLogin() throws Exception {
         this.mockMvc.perform(get("/login"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("login"));
     }
@@ -66,7 +65,6 @@ class LoginControlTest {
                         .flashAttr("topicId", new String())
                         .param("email", "email")
                         .param("password", "pass"))
-                .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }
@@ -86,7 +84,6 @@ class LoginControlTest {
                         .flashAttr("topicId", "test")
                         .param("email", "email")
                         .param("password", "pass"))
-                .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/interview/createForm"));
     }
@@ -103,7 +100,6 @@ class LoginControlTest {
         this.mockMvc.perform(post("/signIn")
                         .param("email", "email")
                         .param("password", "pass"))
-                .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login?error=true"));
     }
@@ -112,7 +108,6 @@ class LoginControlTest {
     @Test
     void whenLogoutRedirectStartPage() throws Exception {
         this.mockMvc.perform(get("/logout"))
-                .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }
@@ -131,7 +126,6 @@ class LoginControlTest {
     void whenGetRegistrationThenReturnRegistrationPage() throws Exception {
         var breadcrumbs = List.of(new Breadcrumb("Главная", "/"), new Breadcrumb("Регистрация", "/registration"));
         this.mockMvc.perform(get("/registration"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(model().attribute("breadcrumbs", breadcrumbs))
                 .andExpect(view().name("registration"));

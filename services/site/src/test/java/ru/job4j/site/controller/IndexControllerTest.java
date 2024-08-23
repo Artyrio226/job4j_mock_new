@@ -63,7 +63,6 @@ class IndexControllerTest {
     @Test
     void whenGetIndexPageThenReturnIndex() throws Exception {
         this.mockMvc.perform(get("/"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("index"));
     }

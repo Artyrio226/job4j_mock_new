@@ -39,7 +39,6 @@ class ProfilesControllerTest {
                 Calendar.getInstance(), Calendar.getInstance());
         when(this.profilesService.getProfileById(id)).thenReturn(Optional.of(profile));
         this.mockMvc.perform(get("/profiles/{id}", profile.getId()))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(model().attribute("profile", profile))
                 .andExpect(view().name("/profiles/profileView"));
@@ -53,7 +52,6 @@ class ProfilesControllerTest {
         var listProfile = List.of(profile1, profile2);
         when(profilesService.getAllProfile()).thenReturn(listProfile);
         this.mockMvc.perform(get("/profiles/"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(model().attribute("profiles", listProfile))
                 .andExpect(view().name("profiles/profiles"));
