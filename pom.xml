@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -18,8 +19,8 @@
     </modules>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -65,10 +66,10 @@
                     </execution>
                     <execution>
                         <id>check</id>
+                        <phase>test</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
-                        <phase>test</phase>
                         <configuration>
                             <rules>
                                 <rule>
@@ -91,10 +92,10 @@
                     </execution>
                     <execution>
                         <id>report</id>
+                        <phase>test</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
-                        <phase>test</phase>
                     </execution>
                 </executions>
             </plugin>
