@@ -46,7 +46,12 @@ class TgConfigTest {
 
     @Test
     void whenGetObjectToMapThenReturnObjectMap() {
-        var personDto = new PersonDTO("mail", "pass", true, null, Calendar.getInstance());
+        var personDto = PersonDTO.builder()
+                .email("email")
+                .password("pass")
+                .privacy(true)
+                .created(Calendar.getInstance())
+                .build();
         var map = tgConfig.getObjectToMap(personDto);
         assertThat(map)
                 .containsEntry("email", personDto.getEmail())

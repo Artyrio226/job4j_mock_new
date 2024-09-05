@@ -32,6 +32,9 @@ public class Profile {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
+    @Column(name = "userchat_id")
+    private Long userChatId;
+
     private boolean active;
 
     private String experience;
@@ -84,6 +87,14 @@ public class Profile {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+    public Profile(String username, String email, String password, Long userChatId) {
+        this();
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.userChatId = userChatId;
     }
 
     public Profile(String username, String experience, String salary, String aboutShort, String about, String location) {
@@ -147,6 +158,14 @@ public class Profile {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Long getUserChatId() {
+        return userChatId;
+    }
+
+    public void setUserChatId(Long userChatId) {
+        this.userChatId = userChatId;
     }
 
     public String getLocation() {

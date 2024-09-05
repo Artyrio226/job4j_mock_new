@@ -51,4 +51,14 @@ public class ProfileService {
     public List<ProfileDTO> findProfileDTOsByIdIn(List<Integer> ids) {
         return personRepository.findProfileDTOsByIdIn(ids);
     }
+
+    /**
+     * Получить ProfileDTO по userChatId
+     *
+     * @param userChatId int
+     * @return ProfileDTO
+     */
+    public Optional<ProfileDTO> findProfileByUserChatId(Long userChatId) {
+        return Optional.ofNullable(personRepository.findByUserChatId(userChatId));
+    }
 }

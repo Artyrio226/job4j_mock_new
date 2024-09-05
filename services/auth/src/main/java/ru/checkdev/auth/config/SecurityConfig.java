@@ -28,6 +28,8 @@ public class SecurityConfig {
                 "/ping",
                 "/registration",
                 "/forgot",
+                "/bind",
+                "/unbind",
                 "/checkPassword",
                 "/auth/activated/**",
                 "/person/by",

@@ -6,8 +6,6 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.checkdev.notification.domain.PersonDTO;
-import ru.checkdev.notification.domain.TelegramProfile;
-import ru.checkdev.notification.service.TelegramProfileService;
 import ru.checkdev.notification.telegram.config.TgConfig;
 import ru.checkdev.notification.telegram.service.TgAuthCallWebClint;
 
@@ -26,8 +24,7 @@ public class RegAction implements Action {
     private static final String ERROR_OBJECT = "error";
     private static final String URL_AUTH_REGISTRATION = "/registration";
     private final TgConfig tgConfig = new TgConfig("tg/", 8);
-    private final TgAuthCallWebClint authCallWebClint;
-    private final TelegramProfileService telegramProfileService;
+    private final TgAuthCallWebClint tgAuthCallWebClint;
     private final String urlSiteAuth;
 
     @Override
@@ -52,36 +49,34 @@ public class RegAction implements Action {
     @Override
     public BotApiMethod<Message> callback(Message message) {
         var chatId = message.getChatId().toString();
+        var userName = message.getFrom().getUserName();
         var email = message.getText();
+        var userChatId = message.getFrom().getId();
         var text = "";
         var sl = System.lineSeparator();
 
         if (!tgConfig.isEmail(email)) {
             text = "Email: " + email + " не корректный." + sl
-                   + "попробуйте снова." + sl
+                   + "Попробуйте снова." + sl
                    + "/new";
-            return new SendMessage(chatId, text);
-        }
-
-        if (telegramProfileService.findByEmail(email).isPresent()) {
-            text = "Вы уже зарегистрированы в системе." + sl
-                   + "Чтобы узнать регистрационные данные используйте /check";
             return new SendMessage(chatId, text);
         }
 
         var password = tgConfig.getPassword();
         var person = PersonDTO.builder()
+                .username(userName)
                 .email(email)
                 .password(password)
+                .userChatId(userChatId)
                 .privacy(true)
                 .created(Calendar.getInstance())
                 .build();
         Object result;
         try {
-            result = authCallWebClint.doPost(URL_AUTH_REGISTRATION, person).block();
+            result = tgAuthCallWebClint.doPost(URL_AUTH_REGISTRATION, person).block();
         } catch (Exception e) {
             log.error("WebClient doPost error: {}", e.getMessage());
-            text = "Сервис авторизации не доступен попробуйте позже" + sl
+            text = "Сервис авторизации не доступен попробуйте позже." + sl
                    + "/start";
             return new SendMessage(chatId, text);
         }
@@ -91,13 +86,6 @@ public class RegAction implements Action {
             text = "Ошибка регистрации: " + mapObject.get(ERROR_OBJECT);
             return new SendMessage(chatId, text);
         }
-
-        var telegramProfile = TelegramProfile.builder()
-                .chatId(chatId)
-                .email(email)
-                .build();
-
-        telegramProfileService.save(telegramProfile);
 
         text = "Вы зарегистрированы: " + sl
                + "Логин: " + email + sl

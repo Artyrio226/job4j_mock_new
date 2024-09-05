@@ -315,4 +315,28 @@ public class PersonService {
         Profile profile = persons.findByEmail(email);
         return encoding.matches(password, profile.getPassword());
     }
+
+    @Transactional
+    public Optional<Profile> bind(Profile profile) {
+        Profile existingProfile = persons.findByEmail(profile.getEmail());
+        if (existingProfile!= null && encoding.matches(profile.getPassword(), existingProfile.getPassword())) {
+            existingProfile.setUserChatId(profile.getUserChatId());
+            persons.save(existingProfile);
+            return Optional.of(existingProfile);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Transactional
+    public Optional<Profile> unbind(Profile profile) {
+        Profile existingProfile = persons.findByEmail(profile.getEmail());
+        if (existingProfile!= null && encoding.matches(profile.getPassword(), existingProfile.getPassword())) {
+            existingProfile.setUserChatId(null);
+            persons.save(existingProfile);
+            return Optional.of(existingProfile);
+        } else {
+            return Optional.empty();
+        }
+    }
 }

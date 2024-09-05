@@ -4,7 +4,12 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
-
-    <include file="changelog/001_ddl_create_table_cd_subscribe_category.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/002_ddl_create_table_cd_subscribe_topic.xml" relativeToChangelogFile="true"/>
+    <property name="now" value="now()" dbms="postgresql"/>
+    <changeSet id="013" author="Artur">
+        <addColumn schemaName="public"
+                   tableName="profile">
+            <column name="userchat_id" type="bigint">
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

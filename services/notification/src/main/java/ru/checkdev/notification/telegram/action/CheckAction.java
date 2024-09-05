@@ -5,29 +5,39 @@ import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import ru.checkdev.notification.service.TelegramProfileService;
+import ru.checkdev.notification.telegram.config.TgConfig;
+import ru.checkdev.notification.telegram.service.TgAuthCallWebClint;
 
 @AllArgsConstructor
 @Slf4j
 public class CheckAction implements Action {
-    private final TelegramProfileService telegramProfileService;
+    private final TgAuthCallWebClint tgAuthCallWebClint;
+    private final TgConfig tgConfig = new TgConfig("tg/", 8);
 
     @Override
     public BotApiMethod<Message> handle(Message message) {
         var chatId = message.getChatId().toString();
-        var text = "";
+        var userChatId = message.getFrom().getId();
         var sl = System.lineSeparator();
+        var text = "";
 
-        var telegramProfile = telegramProfileService.findByChatId(chatId);
-        if (telegramProfile.isEmpty()) {
-            log.error("Не найден TelegramProfile по userId");
-            text = "Вы не зарегистрированы в системе." + sl
+        Object result;
+        try {
+            result = tgAuthCallWebClint.doGet("/profiles/chat/" + userChatId).block();
+        } catch (Exception e) {
+            log.error("WebClient doGet error: {}", e.getMessage());
+            text = "Сервис авторизации не доступен попробуйте позже" + sl
                    + "/start";
             return new SendMessage(chatId, text);
         }
+        var person = tgConfig.getObjectToPersonDTO(result);
+        if (person == null) {
+            text = "Вы не зарегистрированы в системе.";
+            return new SendMessage(chatId, text);
+        }
 
-        text = "Ваше имя: " + message.getFrom().getFirstName() + sl
-               + "Ваша почта: " + telegramProfile.get().getEmail();
+        text = "Ваше имя: " + person.getUsername() + sl
+               + "Ваша почта: " + person.getEmail();
         return new SendMessage(chatId, text);
     }
 

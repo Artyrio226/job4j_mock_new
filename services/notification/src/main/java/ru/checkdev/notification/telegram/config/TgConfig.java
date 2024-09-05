@@ -1,6 +1,7 @@
 package ru.checkdev.notification.telegram.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ru.checkdev.notification.domain.PersonDTO;
 
 import java.util.Map;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public class TgConfig {
     }
 
     /**
-     * метод генерирует пароль для пользователя
+     * Метод генерирует пароль для пользователя
      *
      * @return String
      */
@@ -54,5 +55,9 @@ public class TgConfig {
      */
     public Map<String, String> getObjectToMap(Object object) {
         return MAPPER.convertValue(object, Map.class);
+    }
+
+    public PersonDTO getObjectToPersonDTO(Object object) {
+        return MAPPER.convertValue(object, PersonDTO.class);
     }
 }

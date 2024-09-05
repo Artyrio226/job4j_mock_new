@@ -34,9 +34,9 @@ public class ProfileServiceTest {
     @Autowired
     private ProfileService profileService;
     private final ProfileDTO profileDTO1 = new ProfileDTO(
-            1, "name1", "experience1", 1, null, null);
+            1, "name1", "test1@mail", "experience1", 1, null, null);
     private final ProfileDTO profileDTO2 = new ProfileDTO(
-            2, "name2", "experience2", 2, null, null);
+            2, "name2", "test2@mail", "experience2", 2, null, null);
 
     @Test
     public void whenFindByIDThenReturnOptionalProfileDTO() {

@@ -24,7 +24,6 @@ public class BotMenu extends TelegramLongPollingBot {
     private final String username;
     private final String token;
 
-
     public BotMenu(Map<String, Action> actions, String username, String token) throws TelegramApiException {
         this.actions = actions;
         this.username = username;
@@ -48,7 +47,7 @@ public class BotMenu extends TelegramLongPollingBot {
             var chatId = update.getMessage().getChatId().toString();
             if (actions.containsKey(key)) {
                 var msg = actions.get(key).handle(update.getMessage());
-                if ("/new".equals(key) || "/subscribe".equals(key)) {
+                if ("/new".equals(key) || "/bind".equals(key) || "/unbind".equals(key)) {
                     bindingBy.put(chatId, key);
                 }
                 send(msg);

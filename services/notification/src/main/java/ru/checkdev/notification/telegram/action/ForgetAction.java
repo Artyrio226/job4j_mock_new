@@ -5,12 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import ru.checkdev.notification.domain.PersonDTO;
-import ru.checkdev.notification.service.TelegramProfileService;
 import ru.checkdev.notification.telegram.config.TgConfig;
 import ru.checkdev.notification.telegram.service.TgAuthCallWebClint;
-
-import java.util.Calendar;
 
 @AllArgsConstructor
 @Slf4j
@@ -19,32 +15,34 @@ public class ForgetAction implements Action {
     private static final String ERROR_OBJECT = "error";
     private static final String URL_AUTH_FORGOT = "/forgot";
     private final TgConfig tgConfig = new TgConfig("tg/", 8);
-    private final TgAuthCallWebClint authCallWebClint;
-    private final TelegramProfileService telegramProfileService;
+    private final TgAuthCallWebClint tgAuthCallWebClint;
 
     @Override
     public BotApiMethod<Message> handle(Message message) {
         var chatId = message.getChatId().toString();
+        var userChatId = message.getFrom().getId();
         var sl = System.lineSeparator();
         var text = "";
 
-        var telegramProfile = telegramProfileService.findByChatId(chatId);
-        if (telegramProfile.isEmpty()) {
-            text = "Данный аккаунт Telegram не зарегистрирован";
+        Object result;
+        try {
+            result = tgAuthCallWebClint.doGet("/profiles/chat/" + userChatId).block();
+        } catch (Exception e) {
+            log.error("WebClient doGet error: {}", e.getMessage());
+            text = "Сервис авторизации не доступен попробуйте позже" + sl
+                   + "/start";
+            return new SendMessage(chatId, text);
+        }
+        var person = tgConfig.getObjectToPersonDTO(result);
+        if (person == null) {
+            text = "Вы не зарегистрированы в системе.";
             return new SendMessage(chatId, text);
         }
 
-        var email = telegramProfile.get().getEmail();
         var password = tgConfig.getPassword();
-        var person = PersonDTO.builder()
-                .email(email)
-                .password(password)
-                .privacy(true)
-                .created(Calendar.getInstance())
-                .build();
-        Object result;
+        person.setPassword(password);
         try {
-            result = authCallWebClint.doPost(URL_AUTH_FORGOT, person).block();
+            result = tgAuthCallWebClint.doPost(URL_AUTH_FORGOT, person).block();
         } catch (Exception e) {
             log.error("WebClient doPost error: {}", e.getMessage());
             text = "Сервис не доступен попробуйте позже" + sl
@@ -55,11 +53,11 @@ public class ForgetAction implements Action {
         var mapObject = tgConfig.getObjectToMap(result);
 
         if (mapObject.containsKey(ERROR_OBJECT)) {
-            text = "Ошибка восстановления пароля: обратитесь в поддержку ";
+            text = "Ошибка восстановления пароля: " + mapObject.get(ERROR_OBJECT);
             return new SendMessage(chatId, text);
         }
 
-        text = "Ваш Логин: " + email + sl
+        text = "Ваш Логин: " + person.getEmail() + sl
                + "Новый пароль: " + person.getPassword();
         return new SendMessage(chatId, text);
     }

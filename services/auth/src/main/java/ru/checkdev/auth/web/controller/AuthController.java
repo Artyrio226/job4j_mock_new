@@ -51,23 +51,6 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/checkPassword")
-    public Object checkUser(@RequestBody Profile profile) {
-        if (persons.checkProfilePassword(profile.getEmail(), profile.getPassword())) {
-            return new Object() {
-                public String getOk() {
-                    return "ok";
-                }
-            };
-        } else {
-            return new Object() {
-                public String getError() {
-                    return "Пароль введен не верно.";
-                }
-            };
-        }
-    }
-
     @PostMapping("/registration")
     public Object registration(@RequestBody Profile profile) {
         Optional<Profile> result = this.persons.reg(profile);
@@ -105,4 +88,33 @@ public class AuthController {
     public void logout(HttpServletRequest request) {
 
     }
+
+    @PostMapping("/bind")
+    public Object bind(@RequestBody Profile profile) {
+        Optional<Profile> result = this.persons.bind(profile);
+        return result.<Object>map(per -> new Object() {
+            public Profile getPerson() {
+                return per;
+            }
+        }).orElseGet(() -> new Object() {
+            public String getError() {
+                return "Ошибка привязки аккаунта telegram к платформе CheckDev.";
+            }
+        });
+    }
+
+    @PostMapping("/unbind")
+    public Object unbind(@RequestBody Profile profile) {
+        Optional<Profile> result = this.persons.unbind(profile);
+        return result.<Object>map(per -> new Object() {
+            public Profile getPerson() {
+                return per;
+            }
+        }).orElseGet(() -> new Object() {
+            public String getError() {
+                return "Ошибка отвязки аккаунта telegram от платформы CheckDev.";
+            }
+        });
+    }
+
 }

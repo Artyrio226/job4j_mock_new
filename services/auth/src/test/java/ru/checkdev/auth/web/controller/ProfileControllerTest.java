@@ -39,9 +39,9 @@ public class ProfileControllerTest {
     private MockMvc mockMvc;
     private ProfileController profileController;
     private final ProfileDTO profileDTO1 = new ProfileDTO(
-            1, "name1", "experience1", 1, null, null);
+            1, "name1", "test1@mail", "experience1", 1, null, null);
     private final ProfileDTO profileDTO2 = new ProfileDTO(
-            2, "name2", "experience2", 2, null, null);
+            2, "name2", "test2@mail", "experience2", 2, null, null);
 
 
     @Before
@@ -57,6 +57,7 @@ public class ProfileControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(profileDTO1.getId()))
                 .andExpect(jsonPath("$.username").value(profileDTO1.getUsername()))
+                .andExpect(jsonPath("$.email").value(profileDTO1.getEmail()))
                 .andExpect(jsonPath("$.experience").value(profileDTO1.getExperience()))
                 .andExpect(jsonPath("$.photoId").value(profileDTO1.getPhotoId()));
     }

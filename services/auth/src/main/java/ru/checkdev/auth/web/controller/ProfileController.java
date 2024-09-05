@@ -75,4 +75,12 @@ public class ProfileController {
                 profiles,
                 profiles.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
     }
+
+    @GetMapping("/chat/{id}")
+    public ResponseEntity<ProfileDTO> getProfileByUserChatId(@PathVariable Long id) {
+        var profileDTO = profileService.findProfileByUserChatId(id);
+        return new ResponseEntity<>(
+                profileDTO.orElse(new ProfileDTO()),
+                profileDTO.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
+    }
 }

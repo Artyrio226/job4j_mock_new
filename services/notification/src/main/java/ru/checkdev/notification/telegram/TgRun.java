@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-import ru.checkdev.notification.service.TelegramProfileService;
 import ru.checkdev.notification.telegram.action.*;
 import ru.checkdev.notification.telegram.service.TgAuthCallWebClint;
 
@@ -26,7 +25,6 @@ import java.util.Map;
 @Component
 @Slf4j
 public class TgRun {
-    private final TelegramProfileService telegramProfileService;
     private final TgAuthCallWebClint tgAuthCallWebClint;
     @Value("${tg.username}")
     private String username;
@@ -35,10 +33,8 @@ public class TgRun {
     @Value("${server.site.url.login}")
     private String urlSiteAuth;
 
-    public TgRun(TgAuthCallWebClint tgAuthCallWebClint,
-                 TelegramProfileService telegramProfileService) {
+    public TgRun(TgAuthCallWebClint tgAuthCallWebClint) {
         this.tgAuthCallWebClint = tgAuthCallWebClint;
-        this.telegramProfileService = telegramProfileService;
     }
 
     @Bean
@@ -49,14 +45,14 @@ public class TgRun {
                         "/new - регистрация нового пользователя",
                         "/check - выдать ФИО и почту, привязанную к этому аккаунту",
                         "/forget - восстановление пароля",
-                        "/subscribe - подписаться",
-                        "/unsubscribe - отписаться"
+                        "/bind - привязать аккаунт telegram к платформе CheckDev",
+                        "/unbind  - отвязать аккаунт telegram от платформы CheckDev"
                 )),
-                "/new", new RegAction(tgAuthCallWebClint, telegramProfileService, urlSiteAuth),
-                "/check", new CheckAction(telegramProfileService),
-                "/forget", new ForgetAction(tgAuthCallWebClint, telegramProfileService),
-                "/subscribe", new SubscribeAction(telegramProfileService, tgAuthCallWebClint),
-                "/unsubscribe", new UnsubscribeAction(telegramProfileService)
+                "/new", new RegAction(tgAuthCallWebClint, urlSiteAuth),
+                "/check", new CheckAction(tgAuthCallWebClint),
+                "/forget", new ForgetAction(tgAuthCallWebClint),
+                "/bind", new BindAction(tgAuthCallWebClint),
+                "/unbind", new UnbindAction(tgAuthCallWebClint)
         );
         try {
             BotMenu menu = new BotMenu(actionMap, username, token);

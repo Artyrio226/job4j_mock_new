@@ -17,8 +17,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PersonDTO {
+    private String username;
     private String email;
     private String password;
+    private Long userChatId;
     private boolean privacy;
     private List<RoleDTO> roles;
     private Calendar created;

@@ -9,60 +9,58 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.User;
 import reactor.core.publisher.Mono;
 import ru.checkdev.notification.domain.PersonDTO;
-import ru.checkdev.notification.domain.TelegramProfile;
-import ru.checkdev.notification.service.TelegramProfileService;
-import ru.checkdev.notification.telegram.config.TgConfig;
 import ru.checkdev.notification.telegram.service.TgAuthCallWebClint;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ForgetActionTest {
 
     @Mock
-    private TelegramProfileService telegramProfileService;
-
-    @Mock
-    private TgAuthCallWebClint authCallWebClint;
+    private TgAuthCallWebClint tgAuthCallWebClint;
 
     @InjectMocks
     private ForgetAction forgetAction;
 
-    private TelegramProfile telegramProfile;
     private Message messageMock;
-    private TgConfig tgConfig;
 
     @BeforeEach
     void setUp() {
         messageMock = new Message();
-        messageMock.setChat(new Chat(12345L, "private"));
-        telegramProfile = new TelegramProfile(0, "12345", "test@example.com", false);
-        tgConfig = new TgConfig("tg/", 8);
+        messageMock.setChat(new Chat(123L, "test"));
+        messageMock.setText("testName testPass");
+        messageMock.setFrom(new User(123L, "test", true));
     }
 
     @Test
     void whenHandleAndUserNoExistsThenReturnNotRegisteredMessage() {
 
-        when(telegramProfileService.findByChatId(messageMock.getChatId().toString())).thenReturn(Optional.empty());
+        when(tgAuthCallWebClint.doGet(any())).thenReturn(Mono.empty());
 
-        SendMessage response = (SendMessage) forgetAction.handle(messageMock);
+        var actualAnswer = (SendMessage) forgetAction.callback(messageMock);
 
-        assertThat(response.getChatId()).isEqualTo(messageMock.getChatId().toString());
-        assertThat(response.getText()).isEqualTo("Данный аккаунт Telegram не зарегистрирован");
+        assertThat(actualAnswer.getChatId()).isEqualTo(messageMock.getChatId().toString());
+        assertThat(actualAnswer.getText()).contains("Вы не зарегистрированы в системе.");
     }
 
     @Test
     void whenHandleAndUserExistsThenReturnSuccessMessage() {
 
-        when(telegramProfileService.findByChatId(messageMock.getChatId().toString())).thenReturn(Optional.of(telegramProfile));
-        when(authCallWebClint.doPost(any(String.class), any(PersonDTO.class)))
+        var testPerson = PersonDTO.builder()
+                .username("test")
+                .email("test@mail.ru")
+                .password("123")
+                .userChatId(111L)
+                .build();
+
+        when(tgAuthCallWebClint.doGet(any())).thenReturn(Mono.just(testPerson));
+
+        when(tgAuthCallWebClint.doPost(any(String.class), any(PersonDTO.class)))
                 .thenReturn(Mono.just(new Object() {
                     public int getId() {
                         return 1;
@@ -72,47 +70,50 @@ public class ForgetActionTest {
         SendMessage response = (SendMessage) forgetAction.handle(messageMock);
 
         assertThat(response.getChatId()).isEqualTo(messageMock.getChatId().toString());
-        assertThat(response.getText()).contains("Ваш Логин: test@example.com");
+        assertThat(response.getText()).contains("Ваш Логин: test@mail.ru");
         assertThat(response.getText()).contains("Новый пароль: tg/");
     }
 
     @Test
     void whenHandleAndAuthServerNotAvailableThenReturnServiceUnavailableMessage() {
 
-        when(telegramProfileService.findByChatId(messageMock.getChatId().toString())).thenReturn(Optional.of(telegramProfile));
-        when(authCallWebClint.doPost(any(String.class), any(PersonDTO.class))).thenThrow(new RuntimeException("WebClient error"));
-
         SendMessage response = (SendMessage) forgetAction.handle(messageMock);
 
         assertThat(response.getChatId()).isEqualTo(messageMock.getChatId().toString());
-        assertThat(response.getText()).contains("Сервис не доступен попробуйте позже");
+        assertThat(response.getText()).contains("Сервис авторизации не доступен попробуйте позже"
+                                                + System.lineSeparator() + "/start");
     }
 
     @Test
     void whenHandleAndServerResponseHaveErrorThenReturnErrorMessage() {
+        var testPerson = PersonDTO.builder()
+                .username("test")
+                .email("test@mail.ru")
+                .password("123")
+                .userChatId(111L)
+                .build();
 
-        when(telegramProfileService.findByChatId("12345")).thenReturn(Optional.of(telegramProfile));
-        when(authCallWebClint.doPost(any(String.class), any(PersonDTO.class)))
+        when(tgAuthCallWebClint.doGet(any(String.class))).thenReturn(Mono.just(testPerson));
+        when(tgAuthCallWebClint.doPost(any(String.class), any(PersonDTO.class)))
                 .thenReturn(Mono.just(new Object() {
                     public String getError() {
-                        return "Error Info";
+                        return "Пароль введен не верно.";
                     }
                 }));
 
         SendMessage response = (SendMessage) forgetAction.handle(messageMock);
 
         assertThat(response.getChatId()).isEqualTo(messageMock.getChatId().toString());
-        assertThat(response.getText()).isEqualTo("Ошибка восстановления пароля: обратитесь в поддержку ");
+        assertThat(response.getText()).isEqualTo("Ошибка восстановления пароля: Пароль введен не верно.");
     }
 
     @Test
     public void whenCallbackThenInvokeHandle() {
-
-        when(telegramProfileService.findByChatId(anyString())).thenReturn(Optional.empty());
+        when(tgAuthCallWebClint.doGet(any())).thenReturn(Mono.empty());
 
         var actualAnswer = (SendMessage) forgetAction.callback(messageMock);
 
         assertThat(actualAnswer.getChatId()).isEqualTo(messageMock.getChatId().toString());
-        assertThat(actualAnswer.getText()).contains("Данный аккаунт Telegram не зарегистрирован");
+        assertThat(actualAnswer.getText()).contains("Вы не зарегистрированы в системе.");
     }
 }

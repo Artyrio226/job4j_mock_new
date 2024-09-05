@@ -19,14 +19,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class RegActionTest {
-
-    @InjectMocks
-    private RegAction regAction;
+class UnbindActionTest {
     @Mock
     private TgAuthCallWebClint tgAuthCallWebClint;
+
+    @InjectMocks
+    private UnbindAction unbindAction;
     @Mock
-    Message messageMock;
+    private Message messageMock;
 
     @BeforeEach
     void setUp() {
@@ -37,35 +37,21 @@ class RegActionTest {
     }
 
     @Test
-    void whenHandleAndUserNoExistsThenGetRegisterMessage() {
-
-        SendMessage actualAnswer = (SendMessage) regAction.handle(messageMock);
-
-        assertThat(actualAnswer.getChatId()).isEqualTo(messageMock.getChatId().toString());
-        assertThat(actualAnswer.getText()).contains("Введите email для регистрации:");
-    }
-
-    @Test
-    void whenCallbackAndInvalidEmailThenGetInvalidEmailMessage() {
-        messageMock.setText("invalid_email");
-
-        var actualAnswer = (SendMessage) regAction.callback(messageMock);
+    public void testHandle() {
+        var actualAnswer = (SendMessage) unbindAction.handle(messageMock);
 
         assertThat(actualAnswer.getChatId()).isEqualTo(messageMock.getChatId().toString());
         assertThat(actualAnswer.getText())
-                .contains("Email: invalid_email не корректный." + System.lineSeparator()
-                          + "Попробуйте снова." + System.lineSeparator() + "/new");
+                .contains("Введите логин и пароль через пробел для отвязки аккаунта telegram от платформы CheckDev");
     }
 
     @Test
     void whenCallbackAndAuthServiceErrorThenGetAuthServiceErrorMessage() {
 
-        messageMock.setText("test@example.com");
-
         when(tgAuthCallWebClint.doPost(any(String.class), any(PersonDTO.class)))
                 .thenThrow(new RuntimeException("Auth service error"));
 
-        var actualAnswer = (SendMessage) regAction.callback(messageMock);
+        var actualAnswer = (SendMessage) unbindAction.callback(messageMock);
 
         assertThat(actualAnswer.getChatId()).isEqualTo(messageMock.getChatId().toString());
         assertThat(actualAnswer.getText()).contains("Сервис авторизации не доступен попробуйте позже."
@@ -75,8 +61,6 @@ class RegActionTest {
     @Test
     void whenCallbackAndServerResponseHaveErrorObjectThenGetErrorMessage() {
 
-        messageMock.setText("test@example.com");
-
         when(tgAuthCallWebClint.doPost(any(String.class), any(PersonDTO.class)))
                 .thenReturn(Mono.just(new Object() {
                     public String getError() {
@@ -84,31 +68,37 @@ class RegActionTest {
                     }
                 }));
 
-        SendMessage actualAnswer = (SendMessage) regAction.callback(messageMock);
+        SendMessage actualAnswer = (SendMessage) unbindAction.callback(messageMock);
 
         assertThat(actualAnswer.getChatId()).isEqualTo(messageMock.getChatId().toString());
         assertThat(actualAnswer.getText())
-                .contains("Ошибка регистрации: Error Info");
+                .contains("Ошибка отвязки: Error Info");
     }
 
     @Test
-    void whenCallbackAndServerResponseHaveNoErrorThenGetSubscriptionCompletedMessage() {
-
-        messageMock.setText("test@example.com");
+    void whenHandleUnbindSuccess() {
 
         when(tgAuthCallWebClint.doPost(any(String.class), any(PersonDTO.class)))
                 .thenReturn(Mono.just(new Object() {
-                    public int getId() {
-                        return 1;
+                    public String getOk() {
+                        return "ok";
                     }
                 }));
 
-        SendMessage actualAnswer = (SendMessage) regAction.callback(messageMock);
+        var actualAnswer = (SendMessage) unbindAction.callback(messageMock);
 
         assertThat(actualAnswer.getChatId()).isEqualTo(messageMock.getChatId().toString());
-        assertThat(actualAnswer.getText())
-                .contains("Вы зарегистрированы: ")
-                .contains("Логин: test@example.com")
-                .contains("Пароль: tg/");
+        assertThat(actualAnswer.getText()).contains("Аккаунт telegram отвязан от платформы CheckDev.");
     }
+
+    @Test
+    public void whenCallbackThenInvalidFormat() {
+        messageMock.setText("test");
+
+        var actualAnswer = (SendMessage) unbindAction.callback(messageMock);
+
+        assertThat(actualAnswer.getChatId()).isEqualTo(messageMock.getChatId().toString());
+        assertThat(actualAnswer.getText()).contains("Неправильный формат ввода.");
+    }
+
 }
