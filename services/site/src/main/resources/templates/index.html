@@ -64,7 +64,7 @@
                                         <i class="far fa-clock"></i>
                                         <span th:text="${#strings.substring(interview.createDate, 0, 10)}"></span>
                                         <i class="far fa-user"></i>
-                                        <span>ФИО пользователя</span>
+                                        <span th:text="${profiles.get(interview.getId()).getUsername()}"></span>
                                     </span>
                                 </div>
                             </td>
@@ -101,11 +101,12 @@
                                     <span class="fw-bold" th:text="${category.total}"></span>
                                     <span class="mr-3">Тем : </span>
                                     <span class="fw-bold" th:text="${category.topicsSize}"></span>
-                                    </span>
                                 </small>
                             </td>
                             <td>
-                                <span class="badge bg-success">Новых: 100</span>
+                                <span>Новых: </span>
+                                <span class="badge bg-success"
+                                      th:text="${number_new_interviews.get(category.getId())}"></span>
                             </td>
                         </tr>
                         </tbody>

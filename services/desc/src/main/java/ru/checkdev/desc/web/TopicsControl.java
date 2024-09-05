@@ -24,6 +24,11 @@ public class TopicsControl {
         return topicService.getAll();
     }
 
+    @GetMapping("/withCategory")
+    public List<Topic> getAllWithCategory() {
+        return topicService.getAllWithCategory();
+    }
+
     @GetMapping("/{id}")
     public List<Topic> getByCategory(@PathVariable int id) {
         return topicService.findByCategory(id);

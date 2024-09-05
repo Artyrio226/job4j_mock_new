@@ -4,16 +4,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
-import ru.job4j.site.dto.CategoryDTO;
-import ru.job4j.site.dto.TopicDTO;
-import ru.job4j.site.dto.TopicLiteDTO;
-import ru.job4j.site.dto.TopicIdNameDTO;
+import ru.job4j.site.dto.*;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TopicsService {
+
+    public List<TopicDTO> getAllTopics() throws JsonProcessingException {
+        var text = new RestAuthCall("http://localhost:9902/topics/").get();
+        var mapper = new ObjectMapper();
+        return mapper.readValue(text, new TypeReference<>() {
+        });
+    }
 
     public List<TopicDTO> getByCategory(int id) throws JsonProcessingException {
         var text = new RestAuthCall("http://localhost:9902/topics/" + id).get();
@@ -27,6 +33,33 @@ public class TopicsService {
         var mapper = new ObjectMapper();
         return mapper.readValue(text, new TypeReference<>() {
         });
+    }
+
+    public List<TopicDTO> getAllTopicsWithCategory() throws JsonProcessingException {
+        var text = new RestAuthCall("http://localhost:9902/topics/withCategory/").get();
+        var mapper = new ObjectMapper();
+        return mapper.readValue(text, new TypeReference<>() {
+        });
+    }
+
+    /**
+     * Метод принимает список CategoryDTO и список InterviewDTO и возвращает Map с ключом id из CategoryDTO
+     * и значением количество новых собеседований.
+     *
+     * @param categories List<CategoryDTO>
+     * @param interviewDTOList List<InterviewDTO>
+     * @return Map<Integer, Integer>
+     */
+    public Map<Integer, Integer> getTopicMap(
+            List<CategoryDTO> categories,
+            List<InterviewDTO> interviewDTOList) throws JsonProcessingException {
+        Map<Integer, Integer> map = categories.stream().collect(Collectors.toMap(CategoryDTO::getId, dto -> 0));
+        Map<Integer, TopicDTO> mapTopicsDTO = getAllTopicsWithCategory().stream()
+                .collect(Collectors.toMap(TopicDTO::getId, dto -> dto));
+            for (InterviewDTO dto: interviewDTOList) {
+                map.computeIfPresent(mapTopicsDTO.get(dto.getTopicId()).getCategory().getId(), (k, v) -> v + 1);
+            }
+        return map;
     }
 
     public TopicDTO create(String token, TopicLiteDTO topicLite) throws JsonProcessingException {
