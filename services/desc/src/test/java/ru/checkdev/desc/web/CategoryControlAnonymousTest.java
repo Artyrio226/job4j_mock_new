@@ -33,7 +33,6 @@ class CategoryControlAnonymousTest {
     @Test
     void whenPingWithoutAuth() throws Exception {
         mockMvc.perform(get("/category/ping"))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         content().contentType("text/plain;charset=UTF-8"),
@@ -44,7 +43,6 @@ class CategoryControlAnonymousTest {
     @Test
     void whenCheckWithoutAuth() throws Exception {
         mockMvc.perform(get("/category/check"))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         content().contentType("text/plain;charset=UTF-8"),
@@ -61,7 +59,6 @@ class CategoryControlAnonymousTest {
         category.setPosition(33);
         when(categoryService.findById(1)).thenReturn(Optional.of(category));
         mockMvc.perform(get("/category/1"))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -72,7 +69,6 @@ class CategoryControlAnonymousTest {
     @Test
     void whenGetWithoutAuthThenReturnEmpty() throws Exception {
         mockMvc.perform(get("/category/1"))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -81,7 +77,6 @@ class CategoryControlAnonymousTest {
     @Test
     void whenTryCreateWithoutAuthThenReturn4xx() throws Exception {
         mockMvc.perform(post("/category/"))
-                .andDo(print())
                 .andExpectAll(
                         status().isUnauthorized()
                 );

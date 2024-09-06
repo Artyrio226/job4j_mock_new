@@ -88,4 +88,33 @@ public class AuthController {
     public void logout(HttpServletRequest request) {
 
     }
+
+    @PostMapping("/bind")
+    public Object bind(@RequestBody Profile profile) {
+        Optional<Profile> result = this.persons.bind(profile);
+        return result.<Object>map(per -> new Object() {
+            public Profile getPerson() {
+                return per;
+            }
+        }).orElseGet(() -> new Object() {
+            public String getError() {
+                return "Ошибка привязки аккаунта telegram к платформе CheckDev.";
+            }
+        });
+    }
+
+    @PostMapping("/unbind")
+    public Object unbind(@RequestBody Profile profile) {
+        Optional<Profile> result = this.persons.unbind(profile);
+        return result.<Object>map(per -> new Object() {
+            public Profile getPerson() {
+                return per;
+            }
+        }).orElseGet(() -> new Object() {
+            public String getError() {
+                return "Ошибка отвязки аккаунта telegram от платформы CheckDev.";
+            }
+        });
+    }
+
 }

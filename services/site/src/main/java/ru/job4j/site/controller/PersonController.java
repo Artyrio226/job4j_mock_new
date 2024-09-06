@@ -128,7 +128,6 @@ public class PersonController {
         return result;
     }
 
-
     private PersonDTO getPersonDTO(HttpServletRequest request) {
         var token = (String) request.getSession().getAttribute("token");
         if (token == null) {

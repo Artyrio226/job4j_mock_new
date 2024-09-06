@@ -24,7 +24,7 @@ public class RegAction implements Action {
     private static final String ERROR_OBJECT = "error";
     private static final String URL_AUTH_REGISTRATION = "/registration";
     private final TgConfig tgConfig = new TgConfig("tg/", 8);
-    private final TgAuthCallWebClint authCallWebClint;
+    private final TgAuthCallWebClint tgAuthCallWebClint;
     private final String urlSiteAuth;
 
     @Override
@@ -49,32 +49,39 @@ public class RegAction implements Action {
     @Override
     public BotApiMethod<Message> callback(Message message) {
         var chatId = message.getChatId().toString();
+        var userName = message.getFrom().getUserName();
         var email = message.getText();
+        var userChatId = message.getFrom().getId();
         var text = "";
         var sl = System.lineSeparator();
 
         if (!tgConfig.isEmail(email)) {
             text = "Email: " + email + " не корректный." + sl
-                   + "попробуйте снова." + sl
+                   + "Попробуйте снова." + sl
                    + "/new";
             return new SendMessage(chatId, text);
         }
 
         var password = tgConfig.getPassword();
-        var person = new PersonDTO(email, password, true, null,
-                Calendar.getInstance());
+        var person = PersonDTO.builder()
+                .username(userName)
+                .email(email)
+                .password(password)
+                .userChatId(userChatId)
+                .privacy(true)
+                .created(Calendar.getInstance())
+                .build();
         Object result;
         try {
-            result = authCallWebClint.doPost(URL_AUTH_REGISTRATION, person).block();
+            result = tgAuthCallWebClint.doPost(URL_AUTH_REGISTRATION, person).block();
         } catch (Exception e) {
             log.error("WebClient doPost error: {}", e.getMessage());
-            text = "Сервис не доступен попробуйте позже" + sl
+            text = "Сервис авторизации не доступен попробуйте позже." + sl
                    + "/start";
             return new SendMessage(chatId, text);
         }
 
         var mapObject = tgConfig.getObjectToMap(result);
-
         if (mapObject.containsKey(ERROR_OBJECT)) {
             text = "Ошибка регистрации: " + mapObject.get(ERROR_OBJECT);
             return new SendMessage(chatId, text);

@@ -70,7 +70,6 @@ class InterviewControllerTest {
         mockMvc.perform(post("/interview/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(interview)))
-                .andDo(print())
                 .andExpectAll(status().isCreated(),
                         content().contentType(MediaType.APPLICATION_JSON),
                         content().string(string));
@@ -81,7 +80,6 @@ class InterviewControllerTest {
     public void whenGetByIdIsCorrect() throws Exception {
         when(service.findById(any(Integer.class))).thenReturn(Optional.of(interview));
         this.mockMvc.perform(get("/interview/1"))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -93,7 +91,6 @@ class InterviewControllerTest {
     public void whenGetByIdIsEmpty() throws Exception {
         when(service.findById(any(Integer.class))).thenReturn(Optional.empty());
         this.mockMvc.perform(get("/interview/1"))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -106,7 +103,6 @@ class InterviewControllerTest {
         this.mockMvc.perform(put("/interview/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(interview)))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -120,7 +116,6 @@ class InterviewControllerTest {
         this.mockMvc.perform(put("/interview/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(interview)))
-                .andDo(print())
                 .andExpectAll(
                         status().isNoContent(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -132,7 +127,6 @@ class InterviewControllerTest {
     public void whenDeleteIsCorrect() throws Exception {
         when(service.delete(any(Interview.class))).thenReturn(true);
         this.mockMvc.perform(delete("/interview/1"))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -144,7 +138,6 @@ class InterviewControllerTest {
     public void whenDeleteIsNotCorrect() throws Exception {
         when(service.delete(any(Interview.class))).thenReturn(false);
         this.mockMvc.perform(delete("/interview/1"))
-                .andDo(print())
                 .andExpectAll(
                         status().isNoContent(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -158,7 +151,6 @@ class InterviewControllerTest {
         this.mockMvc.perform(put("/interview/status/")
                         .param("id", "1")
                         .param("newStatus", "2"))
-                .andDo(print())
                 .andExpect(status().isOk());
     }
 
@@ -168,7 +160,6 @@ class InterviewControllerTest {
         this.mockMvc.perform(put("/interview/status/")
                         .param("id", "1")
                         .param("newStatus", "2"))
-                .andDo(print())
                 .andExpect(status().is4xxClientError());
     }
 }

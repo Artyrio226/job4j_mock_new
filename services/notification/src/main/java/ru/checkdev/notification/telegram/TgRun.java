@@ -7,9 +7,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-import ru.checkdev.notification.telegram.action.Action;
-import ru.checkdev.notification.telegram.action.InfoAction;
-import ru.checkdev.notification.telegram.action.RegAction;
+import ru.checkdev.notification.telegram.action.*;
 import ru.checkdev.notification.telegram.service.TgAuthCallWebClint;
 
 import java.util.List;
@@ -43,8 +41,18 @@ public class TgRun {
     public void initTg() {
         Map<String, Action> actionMap = Map.of(
                 "/start", new InfoAction(List.of(
-                        "/start", "/new")),
-                "/new", new RegAction(tgAuthCallWebClint, urlSiteAuth)
+                        "/start - список доступных команд",
+                        "/new - регистрация нового пользователя",
+                        "/check - выдать ФИО и почту, привязанную к этому аккаунту",
+                        "/forget - восстановление пароля",
+                        "/bind - привязать аккаунт telegram к платформе CheckDev",
+                        "/unbind  - отвязать аккаунт telegram от платформы CheckDev"
+                )),
+                "/new", new RegAction(tgAuthCallWebClint, urlSiteAuth),
+                "/check", new CheckAction(tgAuthCallWebClint),
+                "/forget", new ForgetAction(tgAuthCallWebClint),
+                "/bind", new BindAction(tgAuthCallWebClint),
+                "/unbind", new UnbindAction(tgAuthCallWebClint)
         );
         try {
             BotMenu menu = new BotMenu(actionMap, username, token);

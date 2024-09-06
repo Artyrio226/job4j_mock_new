@@ -80,7 +80,6 @@ class WisherControllerTest {
         mockMvc.perform(post("/wisher/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(wisher)))
-                .andDo(print())
                 .andExpectAll(status().isCreated(),
                         content().contentType(MediaType.APPLICATION_JSON),
                         content().string(wisherString));
@@ -91,7 +90,6 @@ class WisherControllerTest {
     public void whenGetByIdIsCorrect() throws Exception {
         when(wisherService.findById(any(Integer.class))).thenReturn(Optional.of(wisher));
         this.mockMvc.perform(get("/wisher/1"))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -103,7 +101,6 @@ class WisherControllerTest {
     public void whenGetByIdIsEmpty() throws Exception {
         when(wisherService.findById(any(Integer.class))).thenReturn(Optional.empty());
         this.mockMvc.perform(get("/wisher/1"))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -118,7 +115,6 @@ class WisherControllerTest {
         this.mockMvc.perform(put("/wisher/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(wisher)))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -134,7 +130,6 @@ class WisherControllerTest {
         this.mockMvc.perform(put("/wisher/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(wisher)))
-                .andDo(print())
                 .andExpectAll(
                         status().isNoContent(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -146,7 +141,6 @@ class WisherControllerTest {
     public void whenDeleteIsCorrect() throws Exception {
         when(wisherService.delete(any(Wisher.class))).thenReturn(true);
         this.mockMvc.perform(delete("/wisher/1"))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -158,7 +152,6 @@ class WisherControllerTest {
     public void whenDeleteIsNotCorrect() throws Exception {
         when(wisherService.delete(any(Wisher.class))).thenReturn(false);
         this.mockMvc.perform(delete("/wisher/1"))
-                .andDo(print())
                 .andExpectAll(
                         status().isNoContent(),
                         content().contentType(MediaType.APPLICATION_JSON),

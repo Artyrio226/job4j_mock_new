@@ -35,21 +35,27 @@ class TgConfigTest {
     @Test
     void whenGetPasswordThenLengthPassSize() {
         var pass = tgConfig.getPassword();
-        assertThat(pass.length()).isEqualTo(passSize);
+        assertThat(pass).hasSize(passSize);
     }
 
     @Test
     void whenGetPasswordThenStartWishPrefix() {
         var pass = tgConfig.getPassword();
-        assertThat(pass.startsWith(prefix)).isTrue();
+        assertThat(pass).startsWith(prefix);
     }
 
     @Test
     void whenGetObjectToMapThenReturnObjectMap() {
-        var personDto = new PersonDTO("mail", "pass", true, null, Calendar.getInstance());
+        var personDto = PersonDTO.builder()
+                .email("email")
+                .password("pass")
+                .privacy(true)
+                .created(Calendar.getInstance())
+                .build();
         var map = tgConfig.getObjectToMap(personDto);
-        assertThat(map.get("email")).isEqualTo(personDto.getEmail());
-        assertThat(map.get("password")).isEqualTo(personDto.getPassword());
+        assertThat(map)
+                .containsEntry("email", personDto.getEmail())
+                .containsEntry("password", personDto.getPassword());
         assertThat(String.valueOf(map.get("privacy"))).isEqualTo(String.valueOf(true));
     }
 }

@@ -55,7 +55,13 @@ class TgAuthCallWebClintTest {
                 .set(Calendar.MONTH, Calendar.OCTOBER)
                 .set(Calendar.YEAR, 2023)
                 .build();
-        var personDto = new PersonDTO("mail", "password", true, Collections.EMPTY_LIST, created);
+        var personDto = PersonDTO.builder()
+                .email("email")
+                .password("pass")
+                .privacy(true)
+                .roles(Collections.EMPTY_LIST)
+                .created(created)
+                .build();
         when(webClientMock.get()).thenReturn(requestHeadersUriMock);
         when(requestHeadersUriMock.uri("/person/" + personId)).thenReturn(requestHeadersMock);
         when(requestHeadersMock.retrieve()).thenReturn(responseMock);
@@ -83,7 +89,12 @@ class TgAuthCallWebClintTest {
                 .set(Calendar.MONTH, Calendar.OCTOBER)
                 .set(Calendar.YEAR, 2023)
                 .build();
-        var personDto = new PersonDTO("mail", "password", true, null, created);
+        var personDto = PersonDTO.builder()
+                .email("email")
+                .password("pass")
+                .privacy(true)
+                .created(created)
+                .build();
         when(webClientMock.post()).thenReturn(requestBodyUriMock);
         when(requestBodyUriMock.uri("/person/created")).thenReturn(requestBodyMock);
         when(requestBodyMock.bodyValue(personDto)).thenReturn(requestHeadersMock);
